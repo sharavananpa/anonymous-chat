@@ -8,6 +8,8 @@ import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { Input, Button, Container, VStack, Heading, Text, Highlight, useToast, Flex, ScaleFade } from '@chakra-ui/react'
 import { UnlockIcon, ChatIcon } from '@chakra-ui/icons'
 
+import { v4 as uuidv4 } from 'uuid';
+
 const firebaseConfig = {
   apiKey: "AIzaSyC5q8rBhMM2Q0BIi0eNahxJSVLN_I9J2kk",
   authDomain: "anonymous-chat-818e1.firebaseapp.com",
@@ -23,11 +25,12 @@ const messagesRef = collection(db, "messages");
 
 function App() {
   const [nickname, setNickname] = useState('');
+  const [tempUUID, setTempUUID] = useState('');
   const [logStatus, setLogStatus] = useState(false);
 
   return (
     <div className="App">
-      {logStatus ? <ChatRoom setLogStatus={setLogStatus} nickname={nickname} /> : <LogIn setLogStatus={setLogStatus} nickname={nickname} setNickname={setNickname} />}
+      {logStatus ? <ChatRoom tempUUID={tempUUID} setLogStatus={setLogStatus} nickname={nickname} /> : <LogIn setLogStatus={setLogStatus} nickname={nickname} setTempUUID={setTempUUID} setNickname={setNickname} />}
     </div>
   );
 }
@@ -36,7 +39,7 @@ function LogIn(props) {
   const toast = useToast();
 
   const logInAnonymously = () => {
-    if (props.nickname.length == 0) {
+    if (props.nickname.length === 0) {
       toast({
         title: 'Please enter a nickname',
         status: 'error',
@@ -52,6 +55,7 @@ function LogIn(props) {
       })
     } else {
       props.setLogStatus(true);
+      props.setTempUUID(uuidv4());
       toast({
         title: 'Logged in successfully',
         description: 'I know you\'re there, I just don\'t know who you are!',
@@ -81,7 +85,7 @@ function LogIn(props) {
           placeholder='Kaipulla'
           size='lg'
           width='auto'
-          isRequired='true'
+          isRequired={true}
           focusBorderColor='purple.500'
         />
       </Container>
@@ -107,7 +111,7 @@ function ChatRoom(props) {
     limit(50)
   );
 
-  const [messages, loading] = useCollectionData(q);
+  const [messages] = useCollectionData(q);
 
   const [message, setMessage] = useState('');
 
@@ -116,6 +120,8 @@ function ChatRoom(props) {
 
     await addDoc(messagesRef, {
       nickname: props.nickname,
+      uuid: props.tempUUID,
+      color: 'green',
       timestamp: serverTimestamp(),
       message: message
     });
@@ -124,9 +130,9 @@ function ChatRoom(props) {
   }
 
   return (
-    <VStack spacing='1rem' width={"100vw"} height={"85vh"} alignContent={"center"} justifyContent={"flex-end"}>
-      <Container maxW='50rem' mt='1rem' overflow='scroll' border='1px' flexDirection='column-reverse' centerContent>
-        {messages && messages.map(m => <ChatMessage key={m.timestamp} loading={loading} m={m} />)}
+    <VStack spacing='1rem' width={"100vw"} height={"85vh"}>
+      <Container maxW='50rem' mt='1rem' overflow='scroll' border='1px' flexDirection='column-reverse' alignItems='flex-start' centerContent>
+        {messages && messages.map(m => <ChatMessage key={m.timestamp} tempUUID={props.tempUUID} m={m} />)}
       </Container>
       <Container centerContent>
         <Input
@@ -136,7 +142,7 @@ function ChatRoom(props) {
           placeholder='type something nice...'
           size='lg'
           width='23rem'
-          isRequired='true'
+          isRequired={true}
           focusBorderColor='purple.500'
         />
       </Container>
@@ -148,23 +154,24 @@ function ChatRoom(props) {
 }
 
 function ChatMessage(props) {
-  const { message, nickname, timestamp } = props.m;
+  const { message, nickname, timestamp, uuid, color } = props.m;
+
+  const sendreceive = uuid === props.tempUUID ? 'send' : 'receive';
 
   return (
-    <ScaleFade initialScale={0.9} in={!props.loading}>
-
-      <Container maxW='40rem' m='0.650rem' bg='#FF0000' borderRadius='0.375rem' border='2px solid' centerContent>
-        <Flex width='35rem' justifyContent='space-between'>
+    <ScaleFade initialScale={0.7} in={timestamp}>
+      <Flex className={sendreceive} maxW='30rem' m='0.650rem' bg='#FF0000' border='2px solid' flexDirection='column-reverse' alignItems='center'>
+        <Flex width='18rem' justifyContent='flex-start'>
           <Heading as='h6' size='xs' p='0.375rem'>
             {nickname}
           </Heading>
-          <Heading as='h6' size='xs' p='0.375rem'>
+          |
+          <Heading as='h6' size='xs' fontStyle='italic' fontWeight='400' p='0.375rem'>
             {(timestamp && timestamp.toDate().toDateString() === new Date().toDateString()) ? "Today, " + timestamp.toDate().toLocaleString('en-US', { timeStyle: 'short' }) : timestamp && timestamp.toDate().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}
           </Heading>
         </Flex>
-        <Text fontSize='xl' width='35rem' p='0.375rem' align='center'>{message}</Text>
-      </Container>
-
+        <Text fontSize='lg' width='25rem' p='0.5rem' pl='4rem' align='left'>{message}</Text>
+      </Flex>
     </ScaleFade>
   )
 }
