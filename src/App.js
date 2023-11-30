@@ -5,8 +5,8 @@ import { getFirestore, serverTimestamp, collection, query, orderBy, addDoc, limi
 
 import { useState } from 'react';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { Input, Button, Container, VStack, Heading, Highlight, useToast } from '@chakra-ui/react'
-import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Input, Button, Container, VStack, Heading, Text, Highlight, useToast, Flex, ScaleFade } from '@chakra-ui/react'
+import { UnlockIcon, ChatIcon } from '@chakra-ui/icons'
 
 const firebaseConfig = {
   apiKey: "AIzaSyC5q8rBhMM2Q0BIi0eNahxJSVLN_I9J2kk",
@@ -27,9 +27,7 @@ function App() {
 
   return (
     <div className="App">
-      <section>
-        {logStatus ? <ChatRoom setLogStatus={setLogStatus} nickname={nickname} /> : <LogIn setLogStatus={setLogStatus} nickname={nickname} setNickname={setNickname} />}
-      </section>
+      {logStatus ? <ChatRoom setLogStatus={setLogStatus} nickname={nickname} /> : <LogIn setLogStatus={setLogStatus} nickname={nickname} setNickname={setNickname} />}
     </div>
   );
 }
@@ -38,14 +36,14 @@ function LogIn(props) {
   const toast = useToast();
 
   const logInAnonymously = () => {
-    if (props.nickname.length == 0 ) {
+    if (props.nickname.length == 0) {
       toast({
         title: 'Please enter a nickname',
         status: 'error',
         duration: 3000,
         isClosable: true,
       })
-    } else if(props.nickname.length < 4) {
+    } else if (props.nickname.length < 4) {
       toast({
         title: 'Your nickname should have atleast 4 characters',
         status: 'error',
@@ -88,7 +86,7 @@ function LogIn(props) {
         />
       </Container>
       <Container centerContent>
-        <Button colorScheme='purple' size='lg' rightIcon={<ArrowForwardIcon />} onClick={logInAnonymously}>Log in</Button>
+        <Button colorScheme='purple' size='lg' rightIcon={<UnlockIcon />} onClick={logInAnonymously}>Log in</Button>
       </Container>
     </VStack>
   )
@@ -109,7 +107,7 @@ function ChatRoom(props) {
     limit(50)
   );
 
-  const [messages] = useCollectionData(q);
+  const [messages, loading] = useCollectionData(q);
 
   const [message, setMessage] = useState('');
 
@@ -126,28 +124,48 @@ function ChatRoom(props) {
   }
 
   return (
-    <>
-      {messages && messages.map(m => <ChatMessage key={m.timestamp} m={m} />)}
-
-      <form onSubmit={sendMessage}>
-        <Input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="say something nice" />
-        <button type="submit" disabled={!message}>🕊️</button>
-      </form>
-    </>
+    <VStack spacing='1rem' width={"100vw"} height={"85vh"} alignContent={"center"} justifyContent={"flex-end"}>
+      <Container maxW='50rem' mt='1rem' overflow='scroll' border='1px' flexDirection='column-reverse' centerContent>
+        {messages && messages.map(m => <ChatMessage key={m.timestamp} loading={loading} m={m} />)}
+      </Container>
+      <Container centerContent>
+        <Input
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          variant='filled'
+          placeholder='type something nice...'
+          size='lg'
+          width='23rem'
+          isRequired='true'
+          focusBorderColor='purple.500'
+        />
+      </Container>
+      <Container centerContent>
+        <Button colorScheme='purple' size='lg' rightIcon={<ChatIcon />} onClick={sendMessage}>Send</Button>
+      </Container>
+    </VStack>
   )
 }
 
 function ChatMessage(props) {
   const { message, nickname, timestamp } = props.m;
 
-  const messageClass = false ? 'sent' : 'received';
-
   return (
-    <>
-      <div className={`message ${messageClass}`}>
-        <p>{nickname} - {message} - {(timestamp && timestamp.toDate().toDateString() === new Date().toDateString()) ? "Today, " + timestamp.toDate().toLocaleString('en-US', { timeStyle: 'short' }) : timestamp && timestamp.toDate().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</p>
-      </div>
-    </>
+    <ScaleFade initialScale={0.9} in={!props.loading}>
+
+      <Container maxW='40rem' m='0.650rem' bg='#FF0000' borderRadius='0.375rem' border='2px solid' centerContent>
+        <Flex width='35rem' justifyContent='space-between'>
+          <Heading as='h6' size='xs' p='0.375rem'>
+            {nickname}
+          </Heading>
+          <Heading as='h6' size='xs' p='0.375rem'>
+            {(timestamp && timestamp.toDate().toDateString() === new Date().toDateString()) ? "Today, " + timestamp.toDate().toLocaleString('en-US', { timeStyle: 'short' }) : timestamp && timestamp.toDate().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}
+          </Heading>
+        </Flex>
+        <Text fontSize='xl' width='35rem' p='0.375rem' align='center'>{message}</Text>
+      </Container>
+
+    </ScaleFade>
   )
 }
 
