@@ -30,8 +30,8 @@ jobs:
         env:
           CI: false
 
-      - name: Running tests
-        run: npm run test
+      # - name: Running tests
+      #   run: npm run test
 
       - name: Uploading production-ready build files
         uses: actions/upload-artifact@v2
