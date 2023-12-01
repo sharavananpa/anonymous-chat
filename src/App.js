@@ -9,6 +9,7 @@ import { Input, Button, Container, VStack, Heading, Text, Highlight, useToast, F
 import { UnlockIcon, ChatIcon } from '@chakra-ui/icons'
 
 import { v4 as uuidv4 } from 'uuid';
+import { randomColor } from 'randomcolor';
 
 const firebaseConfig = {
   apiKey: "AIzaSyC5q8rBhMM2Q0BIi0eNahxJSVLN_I9J2kk",
@@ -114,24 +115,26 @@ function ChatRoom(props) {
   const [messages] = useCollectionData(q);
 
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const sendMessage = async (e) => {
+
+    setLoading(true);
+
     e.preventDefault();
 
     await addDoc(messagesRef, {
       nickname: props.nickname,
       uuid: props.tempUUID,
-      color: 'green',
       timestamp: serverTimestamp(),
       message: message
-    });
-
+    }).then(() => setLoading(false));
     setMessage('');
   }
 
   return (
-    <VStack spacing='1rem' width={"100vw"} height={"85vh"}>
-      <Container maxW='50rem' mt='1rem' overflow='scroll' border='1px' flexDirection='column-reverse' alignItems='flex-start' centerContent>
+    <VStack maxW='60rem' p='1rem' m='auto' spacing='1rem' width={"100vw"} height={"85vh"}>
+      <Container maxW='45rem' height='100%' mt='1rem' p='0.75rem' ml='5rem' mr='5rem' overflowY='auto' border='3px solid transparent' flexDirection='column-reverse' alignItems='flex-start' centerContent>
         {messages && messages.map(m => <ChatMessage key={m.timestamp} tempUUID={props.tempUUID} m={m} />)}
       </Container>
       <Container centerContent>
@@ -147,21 +150,22 @@ function ChatRoom(props) {
         />
       </Container>
       <Container centerContent>
-        <Button colorScheme='purple' size='lg' rightIcon={<ChatIcon />} onClick={sendMessage}>Send</Button>
+        <Button colorScheme='purple' isLoading={loading} size='lg' rightIcon={<ChatIcon />} onClick={sendMessage}>Send</Button>
       </Container>
     </VStack>
   )
 }
 
 function ChatMessage(props) {
-  const { message, nickname, timestamp, uuid, color } = props.m;
+  const { message, nickname, timestamp, uuid } = props.m;
 
-  const sendreceive = uuid === props.tempUUID ? 'send' : 'receive';
+  const br = uuid === props.tempUUID ? 'sendBR' : 'receiveBR';
+  const margin = uuid === props.tempUUID ? 'sendM' : 'receiveM';
 
   return (
-    <ScaleFade initialScale={0.7} in={timestamp}>
-      <Flex className={sendreceive} maxW='30rem' m='0.650rem' bg='#FF0000' border='2px solid' flexDirection='column-reverse' alignItems='center'>
-        <Flex width='18rem' justifyContent='flex-start'>
+    <ScaleFade className={margin} initialScale={0.7} in={timestamp}>
+      <Flex className={br} maxW='35rem' mt='1rem' bg={randomColor({ luminosity: 'light', seed: uuid })} border='2px solid transparent' flexDirection='column-reverse' alignItems='center'>
+        <Flex width='23rem' justifyContent='flex-end'>
           <Heading as='h6' size='xs' p='0.375rem'>
             {nickname}
           </Heading>
@@ -170,7 +174,7 @@ function ChatMessage(props) {
             {(timestamp && timestamp.toDate().toDateString() === new Date().toDateString()) ? "Today, " + timestamp.toDate().toLocaleString('en-US', { timeStyle: 'short' }) : timestamp && timestamp.toDate().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}
           </Heading>
         </Flex>
-        <Text fontSize='lg' width='25rem' p='0.5rem' pl='4rem' align='left'>{message}</Text>
+        <Text fontSize='lg' width='25rem' p='0.5rem' pl='1rem' align='left'>{message}</Text>
       </Flex>
     </ScaleFade>
   )
