@@ -1,23 +1,66 @@
-.sendBR {
-    border-radius: 1.1rem 0.375rem 2rem 1.5rem
+.send {
+    border-radius: 1.1rem 0.375rem 2rem 1.5rem;
+    max-width: 27rem;
 }
 
-.receiveBR {
-    border-radius: 0.375rem 1.1rem 1.5rem 2rem
+.receive {
+    border-radius: 0.375rem 1.1rem 1.5rem 2rem;
+    max-width: 27rem;
+}
+
+@media screen and (max-width:700px) {
+    .send {
+        border-radius: 1.1rem 0.375rem 2rem 1.5rem;
+        max-width: 24rem;
+    }
+
+    .receive {
+        border-radius: 0.375rem 1.1rem 1.5rem 2rem;
+        max-width: 24rem;
+    }
+}
+
+@media screen and (max-width:500px) {
+    .send {
+        border-radius: 1.1rem 0.375rem 2rem 1.5rem;
+        max-width: 17rem;
+    }
+
+    .receive {
+        border-radius: 0.375rem 1.1rem 1.5rem 2rem;
+        max-width: 17rem;
+    }
+}
+
+@media screen and (max-width:380px) {
+    .send {
+        border-radius: 1.1rem 0.375rem 2rem 1.5rem;
+        max-width: 10rem;
+    }
+
+    .receive {
+        border-radius: 0.375rem 1.1rem 1.5rem 2rem;
+        max-width: 10rem;
+    }
 }
 
 .sendM {
-    margin-left: auto
+    margin-left: auto;
 }
 
 .receiveM {
-    margin-right: auto
+    margin-right: auto;
 }
 
-/* .sendT {
-    justify-content: flex-start;
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hidden-scroll::-webkit-scrollbar {
+    display: none;
 }
 
-.receiveT {
-    justify-content: flex-start;
-} */
+/* Hide scrollbar for IE, Edge and Firefox */
+.hidden-scroll {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}

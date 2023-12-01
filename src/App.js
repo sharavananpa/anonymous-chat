@@ -86,6 +86,7 @@ function LogIn(props) {
           placeholder='Kaipulla'
           size='lg'
           width='auto'
+          maxLength='23'
           isRequired={true}
           focusBorderColor='purple.500'
         />
@@ -133,8 +134,8 @@ function ChatRoom(props) {
   }
 
   return (
-    <VStack maxW='60rem' p='1rem' m='auto' spacing='1rem' width={"100vw"} height={"85vh"}>
-      <Container maxW='45rem' height='100%' mt='1rem' p='0.75rem' ml='5rem' mr='5rem' overflowY='auto' border='3px solid transparent' flexDirection='column-reverse' alignItems='flex-start' centerContent>
+    <VStack maxW='60rem' p='1rem' m='auto' spacing='1rem' width={"100vw"} height={"87vh"}>
+      <Container className='hidden-scroll' overflow='scroll' maxW='43rem' height='100%' mt='1rem' p='0.75rem' ml='5rem' mr='5rem' border='3px solid transparent' flexDirection='column-reverse' alignItems='flex-start' centerContent>
         {messages && messages.map(m => <ChatMessage key={m.timestamp} tempUUID={props.tempUUID} m={m} />)}
       </Container>
       <Container centerContent>
@@ -159,22 +160,21 @@ function ChatRoom(props) {
 function ChatMessage(props) {
   const { message, nickname, timestamp, uuid } = props.m;
 
-  const br = uuid === props.tempUUID ? 'sendBR' : 'receiveBR';
+  const br = uuid === props.tempUUID ? 'send' : 'receive';
   const margin = uuid === props.tempUUID ? 'sendM' : 'receiveM';
 
   return (
     <ScaleFade className={margin} initialScale={0.7} in={timestamp}>
-      <Flex className={br} maxW='35rem' mt='1rem' bg={randomColor({ luminosity: 'light', seed: uuid })} border='2px solid transparent' flexDirection='column-reverse' alignItems='center'>
-        <Flex width='23rem' justifyContent='flex-end'>
-          <Heading as='h6' size='xs' p='0.375rem'>
+      <Flex className={br} mt='1rem' bg={randomColor({ luminosity: 'light', seed: uuid })} border='2px solid transparent' flexDirection='column-reverse' alignItems='center'>
+        <Flex width='100%' justifyContent='flex-end' flexDirection='column' alignItems='flex-end' pr='1rem' pl='1.5rem'>
+          <Heading as='h6' size='xs' p='0.375rem' overflowWrap='anywhere'>
             {nickname}
           </Heading>
-          |
           <Heading as='h6' size='xs' fontStyle='italic' fontWeight='400' p='0.375rem'>
             {(timestamp && timestamp.toDate().toDateString() === new Date().toDateString()) ? "Today, " + timestamp.toDate().toLocaleString('en-US', { timeStyle: 'short' }) : timestamp && timestamp.toDate().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}
           </Heading>
         </Flex>
-        <Text fontSize='lg' width='25rem' p='0.5rem' pl='1rem' align='left'>{message}</Text>
+        <Text fontSize='lg' width='100%' p='0.5rem' pl='1rem' align='left' overflowWrap='anywhere'>{message}</Text>
       </Flex>
     </ScaleFade>
   )
