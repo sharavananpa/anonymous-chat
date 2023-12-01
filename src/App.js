@@ -3,9 +3,9 @@ import './App.css';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, serverTimestamp, collection, query, orderBy, addDoc, limit } from 'firebase/firestore';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { Input, Button, Container, VStack, Heading, Text, Highlight, useToast, Flex, ScaleFade } from '@chakra-ui/react'
+import { Input, Button, Container, VStack, Heading, Text, Highlight, useToast, Flex, Divider, SlideFade } from '@chakra-ui/react'
 import { UnlockIcon, ChatIcon } from '@chakra-ui/icons'
 
 import { v4 as uuidv4 } from 'uuid';
@@ -26,12 +26,13 @@ const messagesRef = collection(db, "messages");
 
 function App() {
   const [nickname, setNickname] = useState('');
-  const [tempUUID, setTempUUID] = useState('');
+  const [tempUUID] = useState(uuidv4());
   const [logStatus, setLogStatus] = useState(false);
+  const [color] = useState(randomColor({ luminosity: 'light', seed: tempUUID }));
 
   return (
     <div className="App">
-      {logStatus ? <ChatRoom tempUUID={tempUUID} setLogStatus={setLogStatus} nickname={nickname} /> : <LogIn setLogStatus={setLogStatus} nickname={nickname} setTempUUID={setTempUUID} setNickname={setNickname} />}
+      {logStatus ? <ChatRoom tempUUID={tempUUID} color={color} setLogStatus={setLogStatus} nickname={nickname} /> : <LogIn color={color} setLogStatus={setLogStatus} nickname={nickname} setNickname={setNickname} />}
     </div>
   );
 }
@@ -56,7 +57,6 @@ function LogIn(props) {
       })
     } else {
       props.setLogStatus(true);
-      props.setTempUUID(uuidv4());
       toast({
         title: 'Logged in successfully',
         description: 'I know you\'re there, I just don\'t know who you are!',
@@ -72,7 +72,7 @@ function LogIn(props) {
         <Heading size='lg'>
           <Highlight
             query={['nickname']}
-            styles={{ px: '3', py: '1', rounded: 'full', bg: 'purple.200' }}
+            styles={{ px: '3', py: '1', rounded: 'full', bg: props.color }}
           >
             Enter a nickname
           </Highlight>
@@ -88,24 +88,19 @@ function LogIn(props) {
           width='auto'
           maxLength='23'
           isRequired={true}
-          focusBorderColor='purple.500'
+          focusBorderColor={props.color}
         />
       </Container>
       <Container centerContent>
-        <Button colorScheme='purple' size='lg' rightIcon={<UnlockIcon />} onClick={logInAnonymously}>Log in</Button>
+        <Button size='lg' rightIcon={<UnlockIcon />} onClick={logInAnonymously}>Log in</Button>
       </Container>
     </VStack>
   )
 }
 
-function LogOut(props) {
-  return (
-    <button onClick={() => props.setLogStatus(false)}>Log out</button>
-  )
-}
-
 function ChatRoom(props) {
 
+  const scroll = useRef();
 
   const q = query(
     messagesRef,
@@ -122,7 +117,9 @@ function ChatRoom(props) {
 
     setLoading(true);
 
-    e.preventDefault();
+    if (e && e.cancelable) {
+      e.preventDefault();
+    }
 
     await addDoc(messagesRef, {
       nickname: props.nickname,
@@ -131,27 +128,33 @@ function ChatRoom(props) {
       message: message
     }).then(() => setLoading(false));
     setMessage('');
+    scroll.current.scrollIntoView({
+      behavior: "smooth"
+    });
   }
 
   return (
-    <VStack maxW='60rem' p='1rem' m='auto' spacing='1rem' width={"100vw"} height={"87vh"}>
-      <Container className='hidden-scroll' overflow='scroll' maxW='43rem' height='100%' mt='1rem' p='0.75rem' ml='5rem' mr='5rem' border='3px solid transparent' flexDirection='column-reverse' alignItems='flex-start' centerContent>
-        {messages && messages.map(m => <ChatMessage key={m.timestamp} tempUUID={props.tempUUID} m={m} />)}
+    <VStack maxW='50rem' m='auto' spacing='0rem' width={"100vw"} height={"90vh"}>
+      <Container className='hidden-scroll' overflowY='scroll' maxW='43rem' height='100%' flexDirection='column-reverse' alignItems='flex-start' centerContent>
+        <span style={{ paddingBottom: '1.1rem' }} ref={scroll}></span>
+        {messages && messages.map(m => m && <ChatMessage key={m.timestamp} tempUUID={props.tempUUID} m={m} />)}
       </Container>
-      <Container centerContent>
+      <Divider />
+      <Container m='1rem' centerContent>
         <Input
           value={message}
           onChange={e => setMessage(e.target.value)}
           variant='filled'
           placeholder='type something nice...'
           size='lg'
-          width='23rem'
           isRequired={true}
-          focusBorderColor='purple.500'
+          focusBorderColor={props.color}
+          onKeyDown={(e) => { if (message && e.key === "Enter") sendMessage(); }}
         />
       </Container>
-      <Container centerContent>
-        <Button colorScheme='purple' isLoading={loading} size='lg' rightIcon={<ChatIcon />} onClick={sendMessage}>Send</Button>
+      <Container mb='2rem' flexDirection='column' justifyContent='center' centerContent>
+        <Button variant='ghost' bg={props.color} isLoading={loading} size='lg' rightIcon={<ChatIcon />} isDisabled={!message} onClick={sendMessage}>Send</Button>
+        <Button variant='ghost' mt='1rem' size='sm' onClick={() => props.setLogStatus(false)}>Change name</Button>
       </Container>
     </VStack>
   )
@@ -160,12 +163,12 @@ function ChatRoom(props) {
 function ChatMessage(props) {
   const { message, nickname, timestamp, uuid } = props.m;
 
-  const br = uuid === props.tempUUID ? 'send' : 'receive';
+  const msgCss = uuid === props.tempUUID ? 'send' : 'receive';
   const margin = uuid === props.tempUUID ? 'sendM' : 'receiveM';
 
   return (
-    <ScaleFade className={margin} initialScale={0.7} in={timestamp}>
-      <Flex className={br} mt='1rem' bg={randomColor({ luminosity: 'light', seed: uuid })} border='2px solid transparent' flexDirection='column-reverse' alignItems='center'>
+    <SlideFade className={margin} offsetY='80px' in={timestamp}>
+      <Flex className={msgCss} mt='1rem' bg={randomColor({ luminosity: 'light', seed: uuid })} border='2px solid transparent' flexDirection='column-reverse' alignItems='center'>
         <Flex width='100%' justifyContent='flex-end' flexDirection='column' alignItems='flex-end' pr='1rem' pl='1.5rem'>
           <Heading as='h6' size='xs' p='0.375rem' overflowWrap='anywhere'>
             {nickname}
@@ -176,7 +179,7 @@ function ChatMessage(props) {
         </Flex>
         <Text fontSize='lg' width='100%' p='0.5rem' pl='1rem' align='left' overflowWrap='anywhere'>{message}</Text>
       </Flex>
-    </ScaleFade>
+    </SlideFade>
   )
 }
 
