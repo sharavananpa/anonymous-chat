@@ -154,7 +154,7 @@ function ChatRoom(props) {
       </Container>
       <Container mb='2rem' flexDirection='column' justifyContent='center' centerContent>
         <Button variant='ghost' bg={props.color} isLoading={loading} size='lg' rightIcon={<ChatIcon />} isDisabled={!message} onClick={sendMessage}>Send</Button>
-        <Button variant='ghost' mt='1rem' size='sm' onClick={() => props.setLogStatus(false)}>Change name</Button>
+        <Button variant='ghost' mt='1rem' mb='2rem' size='sm' onClick={() => props.setLogStatus(false)}>Change name</Button>
       </Container>
     </VStack>
   )
