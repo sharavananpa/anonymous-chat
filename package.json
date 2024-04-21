@@ -1,7 +1,7 @@
 {
-  "name": "anon-chat",
-  "version": "0.1.0",
-  "homepage": "https://sharavananpa.github.io/anon-chat/",
+  "name": "anonymous-chat",
+  "version": "1.0.0",
+  "homepage": "https://sharavananpa.dev/anonymous-chat/",
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
