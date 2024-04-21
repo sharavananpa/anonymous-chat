@@ -134,7 +134,7 @@ function ChatRoom(props) {
   }
 
   return (
-    <VStack maxW='50rem' m='auto' spacing='0rem' width={"100vw"} height={"90vh"}>
+    <VStack maxW='50rem' m='auto' spacing='0rem' width={"100vw"} height={"97vh"}>
       <Container className='hidden-scroll' overflowY='scroll' maxW='43rem' height='100%' flexDirection='column-reverse' alignItems='flex-start' centerContent>
         <span style={{ paddingBottom: '1.1rem' }} ref={scroll}></span>
         {messages && messages.map(m => m && <ChatMessage key={m.timestamp} tempUUID={props.tempUUID} m={m} />)}
@@ -152,7 +152,7 @@ function ChatRoom(props) {
           onKeyDown={(e) => { if (message && e.key === "Enter") sendMessage(); }}
         />
       </Container>
-      <Container mb='2rem' flexDirection='column' justifyContent='center' centerContent>
+      <Container mb='0rem' flexDirection='column' justifyContent='center' centerContent>
         <Button variant='ghost' bg={props.color} isLoading={loading} size='lg' rightIcon={<ChatIcon />} isDisabled={!message} onClick={sendMessage}>Send</Button>
         <Button variant='ghost' mt='1rem' mb='2rem' size='sm' onClick={() => props.setLogStatus(false)}>Change name</Button>
       </Container>
