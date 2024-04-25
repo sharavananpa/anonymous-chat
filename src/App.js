@@ -45,14 +45,14 @@ function LogIn(props) {
       toast({
         title: 'Please enter a nickname',
         status: 'error',
-        duration: 3000,
+        duration: 2000,
         isClosable: true,
       })
     } else if (props.nickname.length < 4) {
       toast({
         title: 'Your nickname should have atleast 4 characters',
         status: 'error',
-        duration: 3000,
+        duration: 2000,
         isClosable: true,
       })
     } else {
@@ -61,7 +61,9 @@ function LogIn(props) {
         title: 'Logged in successfully',
         description: 'I know you\'re there, I just don\'t know who you are!',
         status: 'success',
-        duration: 7000,
+        duration: 3000,
+        variant: 'subtle',
+        position: 'top',
         isClosable: true,
       })
     }
@@ -134,7 +136,7 @@ function ChatRoom(props) {
   }
 
   return (
-    <VStack maxW='50rem' m='auto' spacing='0rem' width={"100svw"} height={"99svh"}>
+    <VStack maxW='50rem' m='auto' spacing='0rem' width={"100svw"} height={"100svh"}>
       <Container className='hidden-scroll' overflowY='scroll' maxW='43rem' height='100%' flexDirection='column-reverse' alignItems='flex-start' centerContent>
         <span style={{ paddingBottom: '1.1rem' }} ref={scroll}></span>
         {messages && messages.map(m => m && <ChatMessage key={m.timestamp} tempUUID={props.tempUUID} m={m} />)}
@@ -154,7 +156,7 @@ function ChatRoom(props) {
       </Container>
       <Container mb='0rem' flexDirection='column' justifyContent='center' centerContent>
         <Button variant='ghost' bg={props.color} isLoading={loading} size='lg' rightIcon={<ChatIcon />} isDisabled={!message} onClick={sendMessage}>Send</Button>
-        <Button variant='ghost' mt='1rem' mb='2rem' size='sm' onClick={() => props.setLogStatus(false)}>Change name</Button>
+        <Button variant='ghost' mt='1rem' mb='1rem' size='sm' onClick={() => props.setLogStatus(false)}>Change name</Button>
       </Container>
     </VStack>
   )
