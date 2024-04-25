@@ -67,7 +67,7 @@ function LogIn(props) {
     }
   }
   return (
-    <VStack spacing='1rem' width={"100vw"} height={"90vh"} alignContent={"center"} justifyContent={"center"}>
+    <VStack spacing='1rem' width={"100svw"} height={"90svh"} alignContent={"center"} justifyContent={"center"}>
       <Container centerContent>
         <Heading size='lg'>
           <Highlight
@@ -134,7 +134,7 @@ function ChatRoom(props) {
   }
 
   return (
-    <VStack maxW='50rem' m='auto' spacing='0rem' width={"100vw"} height={"97vh"}>
+    <VStack maxW='50rem' m='auto' spacing='0rem' width={"100svw"} height={"99svh"}>
       <Container className='hidden-scroll' overflowY='scroll' maxW='43rem' height='100%' flexDirection='column-reverse' alignItems='flex-start' centerContent>
         <span style={{ paddingBottom: '1.1rem' }} ref={scroll}></span>
         {messages && messages.map(m => m && <ChatMessage key={m.timestamp} tempUUID={props.tempUUID} m={m} />)}

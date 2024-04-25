@@ -23,7 +23,7 @@
 @media screen and (max-width:500px) {
     .send {
         border-radius: 1.1rem 0.375rem 2rem 1.5rem;
-        max-width: 17rem;
+        max-width: 1rem;
     }
 
     .receive {
