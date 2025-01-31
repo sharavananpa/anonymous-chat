@@ -1,3 +1,3 @@
-# Chat with me anoymously!
+# Chat with me anonymously!
 
 (I'm prolly not gonna look at it)
